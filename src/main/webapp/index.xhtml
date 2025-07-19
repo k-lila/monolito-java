@@ -3,13 +3,220 @@
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:h="jakarta.faces.html"
   xmlns:p="http://primefaces.org/ui"
+  xmlns:f="jakarta.faces.core"
 >
   <h:head>
-    <title>Monolito</title>
+    <title>Página de Cliente</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      .container {
+        width: 100%;
+        height: 100svh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .box {
+        border: 2px solid black;
+        border-radius: 0.5em;
+        padding: 1.5em 1em;
+        display: grid;
+        gap: 2em;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto 1fr;
+      }
+    </style>
   </h:head>
   <h:body>
-    <h:form>
-      <p:commandButton value="Clique aqui" action="#{beanTest.click}" />
-    </h:form>
+    <div class="container">
+      <div class="box">
+        <header
+          style="
+            grid-column: span 2;
+            display: flex;
+            justify-content: space-between;
+          "
+        >
+          <h1>Gestão de Clientes</h1>
+          <h:form>
+            <p:commandButton
+              value="Buscar"
+              onclick="PF('searchDialog').show()"
+              type="button"
+              style="margin-right: 1em"
+            />
+            <p:commandButton
+              value="Limpar"
+              action="#{clientBean.clean}"
+              update=":formulario"
+              style="margin-top: 2em"
+            />
+            <p:dialog
+              header="Buscar Cliente por CPF"
+              widgetVar="searchDialog"
+              modal="true"
+              closable="true"
+              resizable="false"
+            >
+              <h:form id="formBusca">
+                <h:panelGrid columns="2" cellpadding="5">
+                  <h:outputLabel for="cpfSearch" value="CPF:" />
+                  <p:inputText id="cpfSearch" value="#{clientBean.searchCPF}" />
+                  <f:facet name="footer">
+                    <p:commandButton
+                      value="Buscar"
+                      action="#{clientBean.searchByCPF}"
+                      oncomplete="PF('searchDialog').hide()"
+                      style="margin-top: 1em"
+                    />
+                  </f:facet>
+                </h:panelGrid>
+              </h:form>
+            </p:dialog>
+          </h:form>
+        </header>
+
+        <p:dialog
+          header="Buscar Cliente por CPF"
+          widgetVar="searchDialog"
+          modal="true"
+          closable="true"
+          resizable="false"
+        >
+          <h:form id="formBusca">
+            <h:panelGrid columns="2" cellpadding="5">
+              <h:outputLabel
+                for="cpfSearch"
+                value="CPF:"
+                style="margin-right: 0.25em"
+              />
+              <p:inputText id="cpfSearch" value="#{clientBean.searchCPF}" />
+              <f:facet name="footer">
+                <p:commandButton
+                  value="Buscar"
+                  action="#{clientBean.searchByCPF}"
+                  update="formulario"
+                  oncomplete="PF('searchDialog').hide()"
+                  style="margin-top: 2em"
+                />
+              </f:facet>
+            </h:panelGrid>
+          </h:form>
+        </p:dialog>
+
+        <h:form
+          id="formulario"
+          style="
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+          "
+        >
+          <h:outputLabel for="name" value="Nome:" />
+          <h:inputText
+            style="margin-bottom: 0.25em"
+            id="name"
+            value="#{clientBean.client.name}"
+            required="true"
+          />
+          <h:outputLabel for="cpf" value="CPF:" />
+          <h:inputText
+            style="margin-bottom: 0.25em"
+            id="cpf"
+            value="#{clientBean.client.cpf}"
+            required="true"
+          />
+          <h:outputLabel for="fone" value="Telefone:" />
+          <h:inputText
+            style="margin-bottom: 0.25em"
+            id="fone"
+            value="#{clientBean.client.fone}"
+            required="true"
+          />
+          <h:outputLabel for="number" value="Número:" />
+          <h:inputText id="number" value="#{clientBean.client.number}" />
+          <h:outputLabel for="address" value="Endereço:" />
+          <h:inputText
+            style="margin-bottom: 0.25em"
+            id="address"
+            value="#{clientBean.client.address}"
+          />
+          <h:outputLabel for="city" value="Cidade:" />
+          <h:inputText
+            style="margin-bottom: 0.25em"
+            id="city"
+            value="#{clientBean.client.city}"
+          />
+          <h:outputLabel for="state" value="Estado:" />
+          <h:inputText
+            style="margin-bottom: 0.25em"
+            id="state"
+            value="#{clientBean.client.state}"
+          />
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              margin-top: 1em;
+            "
+          >
+            <p:commandButton
+              value="Deletar"
+              update="@form clientTable"
+              action="#{clientBean.delete}"
+              rendered="#{clientBean.client.id != null}"
+              style="background-color: darkred"
+            />
+            <p:commandButton
+              value="Salvar"
+              action="#{clientBean.save}"
+              update="@form clientTable"
+              rendered="#{clientBean.client.id == null}"
+            />
+            <p:commandButton
+              value="Modificar"
+              action="#{clientBean.update}"
+              update="@form clientTable"
+              rendered="#{clientBean.client.id != null}"
+            />
+          </div>
+        </h:form>
+
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+            height: 100%;
+          "
+        >
+          <p:dataTable
+            id="clientTable"
+            value="#{clientBean.allClients}"
+            var="client"
+            scrollable="true"
+            scrollHeight="500"
+            stripedRows="true"
+            style="flex: 1"
+            lazy="false"
+          >
+            <p:column headerText="ID">
+              <h:outputText value="#{client.id}" />
+            </p:column>
+            <p:column headerText="Nome">
+              <h:outputText value="#{client.name}" />
+            </p:column>
+            <p:column headerText="CPF">
+              <h:outputText value="#{client.cpf}" />
+            </p:column>
+          </p:dataTable>
+        </div>
+      </div>
+    </div>
   </h:body>
 </html>

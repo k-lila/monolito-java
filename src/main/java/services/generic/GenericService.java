@@ -43,9 +43,9 @@ public abstract class GenericService<T extends Persistent, E extends Serializabl
     }
 
     @Override
-    public Boolean remove(E value) throws DAOException, ServiceException {
+    public Boolean remove(T entity) throws DAOException, ServiceException {
         try {
-            return this.dao.delete(value);
+            return this.dao.delete(entity);
         } catch(Exception e) {
             throw new ServiceException("Erro ao remover objeto", e);
         }
